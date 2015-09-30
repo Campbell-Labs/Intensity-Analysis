@@ -1,4 +1,4 @@
-function [ biggiedim,biggiearea ] = blob_boxer( impath, minintens)
+function [ biggiedim ] = blob_boxer( impath, minintens)
 
 %Max intensity is commented out because it is currently non-functiontional 
 %, maxintens )
@@ -25,13 +25,13 @@ imbw = im > minintens;
 improp=regionprops(imbw,'basic');
 imlen=length(improp);
 i=0;
-biggiearea=0;
+biggie=0;
 biggiedim=[0,0,0,0];
 while i<imlen;
     i = i+1;
-    if improp(i).Area <biggiearea;
+    if improp(i).Area <biggie;
     else
-            biggiearea=improp(i).Area;
+            biggie=improp(i).Area;
             biggiedim=improp(i).BoundingBox;
     end
 
