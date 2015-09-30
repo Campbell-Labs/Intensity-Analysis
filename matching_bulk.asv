@@ -21,7 +21,7 @@ n=size_struct(1);
 cd(home)
 a=0;
 full_results = {'filename','goodmatch', 'pol_boolean','flor_boolean','precent_match','florintensity','polintensity','timestamp'};
-good_results = full_results;
+truepos_results = full_results;
 while a<n;
     a=a+1;
     location_path = [raw_file,'\',folderlist(a).name];
@@ -35,7 +35,7 @@ while a<n;
         [goodmatch,pol_boolean,flor_boolean,precent_match,florintensity,polintensity,timestamp] = matching_flor_pol(location_path,results_path,int_count);
         full_results = [full_results;{folderlist(a).name,goodmatch,pol_boolean,flor_boolean,precent_match,florintensity,polintensity,timestamp}];
         if goodmatch == 1;
-            good_results = [good_results;{folderlist(a).name,goodmatch,pol_boolean,flor_boolean,precent_match,florintensity,polintensity,timestamp}];
+            truepos_results = [truepos_results;{folderlist(a).name,goodmatch,pol_boolean,flor_boolean,precent_match,florintensity,polintensity,timestamp}];
         end
         if floor(int_count/5) == int_count/5
             s=int2str(fix((int_count/intensdiff)*100));
@@ -46,4 +46,4 @@ while a<n;
 end
 
 xlswrite([datafile,'\Intensity based matching analysis\','full_results.xlsx'],full_results);
-xlswrite([datafile,'\Intensity based matching analysis\','good_results.xlsx'],good_results);
+xlswrite([datafile,'\Intensity based matching analysis\','truepos_results.xlsx'],truepos_results);

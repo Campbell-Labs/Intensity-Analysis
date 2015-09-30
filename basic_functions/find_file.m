@@ -4,7 +4,11 @@ function[file_path,file] = find_file(location_path,foldername,endname)
 
 path = strcat(location_path,'\',foldername);
 
-home = cd(path);
+try
+    home = cd(path);
+catch
+    error('find_file:no_such_path','Error \n \nThis path does not exist');
+end
 
 %these two lines are simply parsing from a structure to a string... was a
 %pain to figure out. First we translate to a cell array and then we take

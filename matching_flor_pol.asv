@@ -2,7 +2,7 @@
 % %This function when pointed at a the location file within Raw data should go into
 % %Florecence and MM photos and give yes or a no to if there is a deposit and
 % %if there are on both it should compare their approximate area
-function[goodmatch,pol_boolean,flor_boolean,precent_match,florintensity,polintensity,timestamp] = matching_flor_pol(location_path,results_path,polintensity)
+function[goodmatch,pol_boolean,flor_boolean,precent_match,florintensity,polintensity,timestamp] = matching_flor_pol(location_path,polintensity)
 addpath('basic_functions','specific_functions');
 
 %This is a toggle which will show what is happening so that it is easier to
@@ -13,26 +13,17 @@ addpath('basic_functions','specific_functions');
 
 florintensity = 10;
 
-timestamp=makefile_path({'comparison'},results_path); 
+timestamp=makefile_path({'comparison'},location_path); 
 
-comp_path=[results_path,'/','comparison','/'];
+comp_path=[location_path,'/','comparison','/'];
 
 %This porition will go and find the image that we want to look at and
 %give us the path to this location. This is based off of the naming
 %conventions which I know are commonly used for the Raw Data dump
 try
     [filepath_flor,flor_file] = find_file(location_path,'F','mono.bmp');
-catch err
-    %hopfully it's justr looking at the wrong file name
-    [filepath_flor,flor_file] = find_file(location_path,'Florecence','mono.bmp');
-end
-try
-    [filepath_pol,pol_file] = find_file(location_path,'MM','4545.bmp');
-catch err
-    %hopfully it's justr looking at the wrong file name... lets try 
-    [filepath_pol,pol_file] = find_file(location_path,'Muller Matrix','4545.bmp');
-end    
     
+[filepath_pol,pol_file] = find_file(location_path,'MM','4545.bmp');
 
 %%Conversion to 8-bit images is currently non-functional and does not seem
 %%to be worthwhile as we actually lose information
