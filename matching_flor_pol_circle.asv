@@ -33,15 +33,10 @@ catch
     [filepath_pol,pol_file] = find_file(location_path,'MM','4545.bmp');
 end    
 
-if in_bulk == 0 
-    copyfile(filepath_flor,comp_path);
-    flor_comp_path = [comp_path,flor_file];
-    copyfile(filepath_pol,comp_path);
-    pol_comp_path = [comp_path,pol_file];
-else
-    flor_comp_path = filepath_flor;
-    pol_comp_path =  filepath_pol;
-end
+copyfile(filepath_flor,comp_path);
+flor_comp_path = [comp_path,flor_file];
+copyfile(filepath_pol,comp_path);
+pol_comp_path = [comp_path,pol_file];
 
 %FIRST WE WILL DO BASIC TOLERENCES
 [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = blob_diff_circler(filepath_flor);
@@ -104,12 +99,12 @@ results = [pol_boolean flor_boolean overall_overlap_precent good_precent ...
     great_precent AWESOME_precent area_covered];
 
 
-
+home = cd(comp_path);
 
 if in_bulk == 0
-    home = cd(comp_path);
     csvwrite(['S_S_',(strrep(pol_file,'_4545.bmp','.csv'))],results);
-    cd(home);
 end
+
+cd(home);
 end
 

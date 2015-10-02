@@ -17,7 +17,7 @@ if is_fun ==0
 end
 
 if is_fun ==0
-    makefile_path({'Intensity based circle matching analysis'},resultsfile);
+    makefile_path({'Intensity based circle matching analysis'},resultsfile)
 end
 raw_file = [datafile,'\Raw Data'];
 
@@ -44,12 +44,8 @@ falsepos_count = 0;
 while a<n;
     a=a+1;
     location_path = [raw_file,'\',folderlist(a).name];
-    if is_fun ==0
-        makefile_path({'circle comparisons'},location_path);
-        results_path = [location_path,'/','circle comparisons','/'];
-    else
-        results_path = location_path;
-    end
+    makefile_path({'circle comparisons'},location_path);
+    results_path = [location_path,'/','circle comparisons','/'];     
     [pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
     great_precent,AWESOME_precent,area_covered ] = matching_flor_pol_circle( location_path,results_path );
     full_results = [full_results;{folderlist(a).name,pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
