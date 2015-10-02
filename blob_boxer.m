@@ -1,4 +1,4 @@
-function [ biggiedim,biggiearea ] = blob_boxer( impath, minintens)
+function [ biggiedim,biggiearea,im,I2 ] = blob_boxer( impath, minintens)
 
 %Max intensity is commented out because it is currently non-functiontional 
 %, maxintens )
@@ -38,5 +38,18 @@ while i<imlen;
 
 end
 %disp(biggiedim);
-%I2=imcrop(im,biggiedim);
+%%Cropping if the image is 24 bit(and of the normal dimensions
+if i==0
+    I2 = zeros(1024,1280);
+    biggiedim = [0,0,0,0,0,0];
+else
+    try if size(size(im))==[1,3]
+            I2=imcrop(im,[biggiedim(1),biggiedim(2),biggiedim(4),biggiedim(5)]);
+        end
+    catch
+        if size(size(im))==[1,2]
+            I2=imcrop(im,biggiedim);
+        end
+    end
+end
 %imshow(I2);

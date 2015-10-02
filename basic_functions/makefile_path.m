@@ -34,10 +34,11 @@ while a<n
             disp(folderstate);
         end
     end
-    %this is the memory section
-    cstr_memory=cstr;
-    c=fix(clock);
-    cstr=strcat('_',int2str(c(1)),'_',int2str(c(2)),'_',int2str(c(3)),'_',int2str(c(4)),'_',int2str(c(5)),'_',int2str(c(6)));
+%     %this is the memory section
+%     global cstr_memory
+%     cstr_memory=cstr;
+%     c=fix(clock);
+%     cstr=strcat('_',int2str(c(1)),'_',int2str(c(2)),'_',int2str(c(3)),'_',int2str(c(4)),'_',int2str(c(5)),'_',int2str(c(6)));
 end
 
 cd(oldpath);

@@ -15,8 +15,13 @@ end
 %the first element of that and change it into a string using the char
 %function
 
-cell = struct2cell(dir(['./','\*',endname]));
-file = char(cell(1));
+try 
+    cell = struct2cell(dir(['./','\*',endname]));
+    file = char(cell(1));
+catch
+    cd(home);
+    error('find_file:no_such_file','Error \n \nThis file does not exist');
+end
 
 clear cell;
 
