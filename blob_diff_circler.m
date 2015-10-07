@@ -6,9 +6,9 @@ function [ found,avg_centroid,avg_minoraxis,avg_majoraxis ] = blob_diff_circler(
 %These are the parameters which the function regards or disregards the
 %points and the commented number is the values which work for Glenda pol
 
-customvar = 0; %would you like to use the defaults?
+defaultvar = 0; %would you like to use the defaults?
 
-if customvar == 0
+if defaultvar == 1
     edge_crop = 10; % 10 amount of pixels to crop from edge
     min_convexarea = 300; %300 minimum area the polygon can cover 
     min_minoraxislength = 20;%20 minimum length of the short size
@@ -53,9 +53,9 @@ i=0;
 while i<imlen;
     i = i+1;
     %this should be the size of a 3 micron diameter circle 
-    if improp(i).ConvexArea > ((im_size(2)-diffmax_length-edge_crop)*(im_size(1)-diffmax_length-edge_crop)) ...
-            || improp(i).ConvexArea<min_convexarea ||improp(i).MinorAxisLength<min_minoraxislength ...
-            || improp(i).Area<min_area || improp(i).Solidity<min_solidity ;
+    if improp(i).ConvexArea >= ((im_size(2)-diffmax_length-edge_crop)*(im_size(1)-diffmax_length-edge_crop)) ...
+            || improp(i).ConvexArea<=min_convexarea ||improp(i).MinorAxisLength<=min_minoraxislength ...
+            || improp(i).Area<=min_area || improp(i).Solidity<=min_solidity ;
         improp(i)=[];
         imlen=length(improp);
         i=i-1;

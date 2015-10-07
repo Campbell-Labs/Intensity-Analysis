@@ -42,11 +42,31 @@ else
     flor_comp_path = filepath_flor;
     pol_comp_path =  filepath_pol;
 end
-
-%FIRST WE WILL DO BASIC TOLERENCES
-[flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = blob_diff_circler(filepath_flor);
-[pol_boolean,pol_centroid,pol_minoraxis,pol_majoraxis] = blob_diff_circler(filepath_pol);
-
+%pulling globals because I dont want to pass 12 variables through 4
+%function
+if in_bulk ==1
+    global flor_edge_crop flor_min_convexarea flor_min_minoraxislength flor_min_area ... 
+    flor_min_solidity flor_diffmax_length pol_edge_crop pol_min_convexarea ...
+    pol_min_minoraxislength pol_min_area pol_min_solidity pol_diffmax_length...
+    edge_crop min_convexarea min_minoraxislength min_area min_solidity ...
+        diffmax_length;
+    
+    edge_crop = flor_edge_crop;
+    min_convexarea =  flor_min_convexarea;
+    min_minoraxislength  = flor_min_minoraxislength;
+    min_area = flor_min_area;
+    min_solidity = flor_min_solidity;
+    diffmax_length = flor_diffmax_length;
+    [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = blob_diff_circler(filepath_flor);
+    
+    edge_crop = pol_edge_crop;
+    min_convexarea =  pol_min_convexarea;
+    min_minoraxislength  = pol_min_minoraxislength;
+    min_area = pol_min_area;
+    min_solidity = pol_min_solidity;
+    diffmax_length = pol_diffmax_length;
+    [pol_boolean,pol_centroid,pol_minoraxis,pol_majoraxis] = blob_diff_circler(filepath_pol);
+end
 if flor_boolean == 1  && pol_boolean == 1;
     %in the blob_diff_circler we subtract 11 pixels from each side so we
     %have to add them back to the coords now

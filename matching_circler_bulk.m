@@ -5,6 +5,10 @@
 function [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,spec_prec,npp_prec,ppp_prec] = ...
     matching_circler_bulk(datafile,resultsfile)
     %this function will run the circular matching on a whole Raw Data file
+    
+% datafile = 'C:\Glenda\Glenda LE';
+% resultsfile = 'C:\Glenda\Glenda LE';
+
 addpath('basic_functions','specific_functions');
 
 %Will supress outputs and attempt to make the function less memory
@@ -92,6 +96,18 @@ sens_prec = (truepos_count/(truepos_count + falseneg_count))*100;
 spec_prec = (trueneg_count/(trueneg_count + falsepos_count))*100;
 npp_prec = (trueneg_count/(falseneg_count + trueneg_count))*100;
 ppp_prec = (truepos_count/(falsepos_count + truepos_count))*100;
+if isnan(sens_prec)
+    sens_prec = 0;
+end
+if isnan(spec_prec)
+    spec_prec = 0;
+end
+if isnan(npp_prec)
+    npp_prec = 0;
+end
+if isnan(ppp_prec)
+    ppp_prec = 0;
+end
 if is_fun ==0
     full_results = [full_results;{'truepos (A)','falsepos (B)','falseneg (C)','trueneg (D)','Sensitivity','Specificity','Negative Predictive Value','Positive Predictive Value '}];
     full_results = [full_results;{'','','','','','','',''}];
