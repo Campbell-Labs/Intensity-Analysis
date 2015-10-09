@@ -1,3 +1,9 @@
+    %Since this uses a lot of global variables I will clear memory before
+    %anything runs
+
+%%IF YOU ARE DEBUGGING REMOVE THE CLEAR ALL
+clear all;
+    
 disp(fix(clock));
 datafile = input('Where is the Raw Data folder stored?');
 
@@ -7,23 +13,26 @@ makefile_path({'Sensitivity_Specificty'},datafile);
 
 global pol_edge_crop pol_min_convexarea pol_min_minoraxislength pol_min_area ... 
     pol_min_solidity pol_diffmax_length flor_edge_crop flor_min_convexarea ...
-    flor_min_minoraxislength flor_min_area flor_min_solidity flor_diffmax_length;
+    flor_min_minoraxislength flor_min_area flor_min_solidity flor_diffmax_length...
+     maxfound ;
 
 resultsfile = [datafile,'\Sensitivity_Specificty'];
 
-steps_per = 11;
+max_steps_per = 101;
+start_steps_per = 3;
+courseness = 5;
 
 %initilize variables
-%%POL
-flor_edge_crop = 9; % 10 amount of pixels to crop from edge
-flor_min_convexarea = 300; %300 minimum area the polygon can cover 
-flor_min_minoraxislength = 20;%20 minimum length of the short size
-flor_min_area = 10; %10 minimum number of pixels which must show up in the polygon
+%%FLOR
+flor_edge_crop = 14; % 10 amount of pixels to crop from edge
+flor_min_convexarea = 206; %300 minimum area the polygon can cover 
+flor_min_minoraxislength = 2;%20 minimum length of the short size
+flor_min_area = 2; %10 minimum number of pixels which must show up in the polygon
 flor_min_solidity = .0005; %.001 minimmum amount of pixels per the area of the plygon (pixel density)
-flor_diffmax_length = 100; % 100 how large the largest blob can be (photo size minus this #)
+flor_diffmax_length = 36; % 100 how large the largest blob can be (photo size minus this #)
 
 low_flor_edge_crop = 0;
-high_flor_edge_crop = 20;
+high_flor_edge_crop = 21;
 
 low_flor_min_convexarea = 0;
 high_flor_min_convexarea = 1000;
@@ -40,33 +49,31 @@ high_flor_min_solidity = 0.05;
 low_flor_diffmax_length = 0;
 high_flor_diffmax_length = 200;
 
-%%pol
-pol_edge_crop = 10; % 10 amount of pixels to crop from edge
+%%POL
+pol_edge_crop = 9; % 10 amount of pixels to crop from edge
 pol_min_convexarea = 300; %300 minimum area the polygon can cover 
 pol_min_minoraxislength = 20;%20 minimum length of the short size
-pol_min_area = 10;%10 minimum number of pixels which must show up in the polygon
-pol_min_solidity = .001;  %.001 minimmum amount of pixels per the area of the plygon (pixel density)
+pol_min_area = 4.5;%10 minimum number of pixels which must show up in the polygon
+pol_min_solidity = .0009;  %.001 minimmum amount of pixels per the area of the plygon (pixel density)
 pol_diffmax_length = 100;% 100 how large the largest blob can be (photo size minus this #)
 
 low_pol_edge_crop = 0;
-high_pol_edge_crop = 50;
+high_pol_edge_crop = 100;
 
 low_pol_min_convexarea = 0;
 high_pol_min_convexarea = 1000;
 
-low_pol_min_minoraxislength = 10;
+low_pol_min_minoraxislength = 0;
 high_pol_min_minoraxislength = 40;
 
 low_pol_min_area = 0;
-high_pol_min_area = 30;
+high_pol_min_area = 60;
 
 low_pol_min_solidity = 0;
-high_pol_min_solidity = 0.01;
+high_pol_min_solidity = 0.001;
 
 low_pol_diffmax_length = 0;
 high_pol_diffmax_length = 200;
-
-
 
 low_row = [low_flor_edge_crop,low_flor_min_convexarea,low_flor_min_minoraxislength,...
     low_flor_min_area,low_flor_min_solidity,low_flor_diffmax_length...
@@ -87,10 +94,15 @@ results = {'flor_edge_crop','flor_min_convexarea','flor_min_minoraxislength','fl
     'pol_edge_crop','pol_min_convexarea','pol_min_minoraxislength','pol_min_area','pol_min_solidity','pol_diffmax_length',...    
     'max_num','truepos_count','falsepos_count','falseneg_count','trueneg_count','sens_prec','spec_prec','npp_prec','ppp_prec'};
 
+maxfound = 1;
+[truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,spec_prec,npp_prec,ppp_prec] = matching_circler_bulk(datafile,resultsfile);
+max_max_num = sens_prec + spec_prec + (npp_prec*0.5) + (ppp_prec*0.5);
+
 disp('Initialized');
-max_max_num = 0;
 finished = 0;
-while finished == 0
+steps_per = start_steps_per;
+while finished == 0 || steps_per < max_steps_per
+maxfound = 0;
 %This while loop allows the re-running of the important parts of the
 %function if we ever set the finished bool to be 0.
 finished = 1;
@@ -99,8 +111,8 @@ finished = 1;
 high_low_matrix = (ones(size(low_row,2),steps_per+2));
 
 high_low_matrix(:,1)=low_row;
-if size(start_row,2) == 13
-    start_row(13)=[];
+if size(start_row,2) == (size(low_row,2)+1)
+    start_row(size(start_row,2))=[];
 end
     
 high_low_matrix(:,(fix((steps_per+2)/2)))= start_row;
@@ -140,7 +152,7 @@ end
 %%%HURRAY LETS MAKE AN ARRAY!!!!
 %%%There whould be 12 columns (+1 empty that the sens/spec will input into)
 %%%and steps_per(+1) rows and it should be 12 layers deep.
-if size(start_row,2) == 12
+if size(start_row,2) == size(low_row,2)
     start_row = [start_row,[0]];
 end
 %assigning the size of the array
@@ -152,13 +164,13 @@ loopcount = 0;
 secdiffarray = [];
 while j<var_depth
     j=j+1;
-    i=0;
+    [i,loop_pass,high_change]=deal(0);
     while i<var_width
         runclock = clock;
         loopcount = loopcount+1;
 %         %Using the high_low array to set the value which will be run and
 %         %running it all (its just a bunch of variables so it looks
-%         %complicated)
+%         %long)
         i=i+1;
         var_array(:,i,j) = start_row;
         var_array(j,i,j) = high_low_matrix(j,i);
@@ -170,7 +182,9 @@ while j<var_depth
         [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,spec_prec,npp_prec,ppp_prec] = ...
                                    matching_circler_bulk(datafile,resultsfile);
         %Number which we are attempting to maximize:
-        max_num = sens_prec + spec_prec + npp_prec + ppp_prec;
+        %I am adding them all up but giving more weight to the sens/spec
+        %for obvious reasons
+        max_num = sens_prec + spec_prec + (npp_prec*0.5) + (ppp_prec*0.5);
         
         new_results = {flor_edge_crop,flor_min_convexarea,flor_min_minoraxislength, ...
         flor_min_area,flor_min_solidity,flor_diffmax_length,...
@@ -181,15 +195,37 @@ while j<var_depth
         results = [results;new_results];
 
         var_array(size(start_row,2),i,j) = max_num;
-        if max_num> max_max_num
+        %loop_pass is to make sure that we dont keep looping over the same
+        %image over and over and so I can reset the maxfound back to 0 as
+        %it prints out the results if they find a max.
+        if loop_pass == 1
+            loop_pass = 0;
+            maxfound = 0;
+        elseif max_num> max_max_num ||(finished == 0 && max_num == max_max_num) 
             max_max_num = max_num;
             finished = 0;
+            [loop_pass,maxfound] = deal(1);
             start_row(j) = high_low_matrix(j,i);
-        elseif max_num < max_max_num - 50
-            if high_low_matrix(j,i)>start_row(j)
+            if start_row(j) == high_row(j)
+                high_row(j) = (high_row(j)*4);
+                disp(['The high row of ',results{1,j},' was changed to ',num2str(high_row(j))]);
+            end
+            if start_row(j) == low_row(j);
+                low_row(j) = (low_row (j) - high_row(j)*.5);
+                if low_row (j) < 0;
+                    low_row (j) = 0;
+                end
+                disp(['The low row of ',results{1,j},' was changed to ',num2str(low_row(j))]);
+            end
+            i=i-1;
+        elseif max_num < max_max_num - 20
+            if high_low_matrix(j,i)>start_row(j) && high_change == 0
+                high_change = 1;
                 high_row(j) = high_low_matrix(j,i);
+                disp(['The high row of ',results{1,j},' was changed to ',num2str(high_row(j))]);
             elseif high_low_matrix(j,i)<start_row(j)
                 low_row(j) = high_low_matrix(j,i);
+                disp(['The low row of ',results{1,j},' was changed to ',num2str(low_row(j))]);
             end
         end
         
@@ -200,20 +236,34 @@ while j<var_depth
         avg_time = mean(secdiffarray);
 
         %messages to be displayed every 5 loops
-        if loopcount/5 == floor(loopcount/5)
-            disp(['Loop ',int2str(loopcount),' of ',int2str(var_depth*var_width),' completed'])
-            disp(['This means that the function is ', int2str(fix(loopcount/(var_depth*var_width)*100)),' % complete']);
-            disp(['This means that there is approximately ',int2str((avg_time*((var_depth*var_width)-loopcount))/60),' min remaining']);
+        if loopcount/20 == floor(loopcount/20) || loopcount == 1
+            disp(['Loop ',int2str(loopcount),' of ',int2str(var_depth*var_width),' completed. WITH ',num2str((floor((max_steps_per-steps_per)/courseness))+2),' of ',num2str(floor((max_steps_per-start_steps_per)/courseness)+2),' loops remaining']);
+            disp(['This means that the function is ', int2str(fix(loopcount/(var_depth*var_width)*100)),' % complete. FOR THIS LOOP']);
+            disp(['This means that there is approximately ',int2str((avg_time*((var_depth*var_width)-loopcount))/60),' min remaining. IN THIS LOOP']);
         end
     end
     if finished == 0
-        disp(['BREAKING.... TIMERS RESET because of '])
-        disp(results(1,j));
-        disp(['which was changed']);
+        disp([char(10),'BREAKING.... TIMERS RESET because of ',char(10),results{1,j},' which was changed to: ',num2str(start_row(j)),char(10)]);
         break
     end
 end
+    if finished == 1
+        steps_per = steps_per + courseness;
+            if steps_per>max_steps_per;
+                steps_per = max_steps_per;
+            end
+    end
 end
+
+%result printing section. IF THE FUNCTION DIES RUN THIS SECTION
 xlswrite([datafile,'\Sensitivity_Specificty\','results.xlsx'],results);
+if size(start_row,2) == (size(low_row,2)+1)
+    start_row(size(start_row,2))=[];
+end
+high_start_low = {'flor_edge_crop','flor_min_convexarea','flor_min_minoraxislength','flor_min_area','flor_min_solidity','flor_diffmax_length',...
+    'pol_edge_crop','pol_min_convexarea','pol_min_minoraxislength','pol_min_area','pol_min_solidity','pol_diffmax_length'};
+high_start_low = [high_start_low;num2cell(high_row);num2cell(start_row);num2cell(low_row)];
+xlswrite([datafile,'\Sensitivity_Specificty\','high_start_low.xlsx'],high_start_low);
+
 disp('DONE!!');
 disp(fix(clock));

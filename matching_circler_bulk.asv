@@ -8,7 +8,7 @@ function [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,sp
     
 % datafile = 'C:\Glenda\Glenda LE';
 % resultsfile = 'C:\Glenda\Glenda LE';
-global maxfound location_counter mem;
+global maxfound;
 
 addpath('basic_functions','specific_functions');
 
@@ -35,18 +35,14 @@ size_struct = size(folderlist);
 n=size_struct(1);
 
 %%MEMORY
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 empty = zeros(n,1);
-empty2 = zeros(n,2);
 mem = struct('flor_edge_crop',empty,'flor_min_convexarea',empty,'flor_min_minoraxislength',empty,'flor_min_area',empty,... 
             'flor_min_solidity',empty,'flor_diffmax_length',empty,'pol_edge_crop',empty,'pol_min_convexarea',empty, ...
             'pol_min_minoraxislength',empty,'pol_min_area',empty,'pol_min_solidity',empty,'pol_diffmax_length',empty,...
-            'flor_boolean',empty,'flor_centroid',empty2,'flor_minoraxis',empty,'flor_majoraxis',empty,...
-           'pol_boolean',empty,'pol_centroid',empty2,'pol_minoraxis',empty,'pol_majoraxis',empty);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+            'flor_boolean',empty,'flor_centroid',empty,'flor_minoraxis',empty,'flor_majoraxis',empty,...
+           'pol_boolean',empty,'pol_centroid',empty,'pol_minoraxis',empty,'pol_majoraxis',empty...);
 cd(home);
-location_counter=0;
+a=0;
 full_results = {'filename','pol_boolean','flor_boolean','overall_overlap_precent','good_precent', ...
     'great_precent','AWESOME_precent','area_covered'};
 truepos_results = full_results;
@@ -57,9 +53,9 @@ truepos_count = 0;
 trueneg_count = 0;
 falseneg_count = 0;
 falsepos_count = 0;
-while location_counter<n;
-    location_counter=location_counter+1;
-    location_path = [raw_file,'\',folderlist(location_counter).name];
+while a<n;
+    a=a+1;
+    location_path = [raw_file,'\',folderlist(a).name];
     if is_fun == 0 || maxfound == 1;
         makefile_path({'circle comparisons'},location_path);
         results_path = [location_path,'/','circle comparisons','/'];
@@ -68,40 +64,40 @@ while location_counter<n;
     end
     [pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
     great_precent,AWESOME_precent,area_covered ] = matching_flor_pol_circle( location_path,results_path );
-    full_results = [full_results;{folderlist(location_counter).name,pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
+    full_results = [full_results;{folderlist(a).name,pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
     great_precent,AWESOME_precent,area_covered}];
     
     if flor_boolean == 1 && pol_boolean==1
         if is_fun == 0 || maxfound == 1;
-        truepos_results = [truepos_results;{folderlist(location_counter).name,pol_boolean,...
+        truepos_results = [truepos_results;{folderlist(a).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         truepos_count = truepos_count+1;
     elseif flor_boolean == 0 && pol_boolean==0
         if is_fun == 0 || maxfound == 1;
-        trueneg_results = [trueneg_results;{folderlist(location_counter).name,pol_boolean,...
+        trueneg_results = [trueneg_results;{folderlist(a).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         trueneg_count = trueneg_count+1;
     elseif flor_boolean == 1 && pol_boolean==0
         if is_fun == 0 || maxfound == 1;
-        falseneg_results = [falseneg_results;{folderlist(location_counter).name,pol_boolean,...
+        falseneg_results = [falseneg_results;{folderlist(a).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         falseneg_count = falseneg_count+1;
     elseif flor_boolean == 0 && pol_boolean==1
         if is_fun == 0 || maxfound == 1;
-        falsepos_results = [falsepos_results;{folderlist(location_counter).name,pol_boolean,...
+        falsepos_results = [falsepos_results;{folderlist(a).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         falseneg_count = falseneg_count+1;
     end
     if is_fun ==0
-        disp([folderlist(location_counter).name,' has been analysed']);
+        disp([folderlist(a).name,' has been analysed']);
     end
 end
 sens_prec = (truepos_count/(truepos_count + falseneg_count))*100;
