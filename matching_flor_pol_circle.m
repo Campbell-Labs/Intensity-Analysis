@@ -10,12 +10,12 @@ addpath('basic_functions','specific_functions');
 %This is a toggle which will show what is happening so that it is easier to
 %explain (1=on,0=off)
   show  = 0;
-
+global maxfound name;
 in_bulk = 1;
 
-if in_bulk == 0
-    timestamp=makefile_path({'circle comparison'},results_path); 
-    comp_path=[results_path,'/','circle comparison','/'];
+if in_bulk == 0 || maxfound == 1
+    timestamp=makefile_path({['circle comparison ',name]},results_path); 
+    comp_path=[results_path,'/','circle comparison ',name,'/'];
 end
 %This porition will go and find the image that we want to look at and
 %give us the path to this location. This is based off of the naming
@@ -39,7 +39,7 @@ catch
     [filepath_pol,pol_file] = find_file(location_path,'MM\bmp','4545.bmp');
 end    
 
-if in_bulk == 0 
+if in_bulk == 0 || maxfound == 1
     copyfile(filepath_flor,comp_path);
     flor_comp_path = [comp_path,flor_file];
     copyfile(filepath_pol,comp_path);
@@ -51,26 +51,24 @@ end
 %pulling globals because I dont want to pass 12 variables through 4
 %functions and because of memory
 if in_bulk ==1
-    global flor_edge_crop flor_min_convexarea flor_min_minoraxislength flor_min_area ... 
-            flor_min_solidity flor_diffmax_length pol_edge_crop pol_min_convexarea ...
-            pol_min_minoraxislength pol_min_area pol_min_solidity pol_diffmax_length...
+    global flor_var_struct pol_var_struct...
             edge_crop min_convexarea min_minoraxislength min_area min_solidity ...
-            diffmax_length mem location_counter;
-    [edge_crop,min_convexarea,min_minoraxislength,min_area,min_solidity,diffmax_length] = ...
-        deal(flor_edge_crop,flor_min_convexarea,flor_min_minoraxislength,flor_min_area,flor_min_solidity,flor_diffmax_length);
-    if mem.flor_edge_crop(location_counter) == flor_edge_crop && mem.flor_min_convexarea(location_counter) == flor_min_convexarea ... 
-            && mem.flor_min_minoraxislength(location_counter) == flor_min_minoraxislength && mem.flor_min_area(location_counter) == flor_min_area ...
-            && mem.flor_min_solidity(location_counter) == flor_min_solidity && mem.flor_diffmax_length(location_counter) == flor_diffmax_length
+            diffmax_length filtersize mem location_counter;
+    [edge_crop,min_convexarea,min_minoraxislength,min_area,min_solidity,diffmax_length,filtersize] = ...
+        deal(flor_var_struct.flor_edge_crop(1),flor_var_struct.flor_min_convexarea(1),flor_var_struct.flor_min_minoraxislength(1),flor_var_struct.flor_min_area(1),flor_var_struct.flor_min_solidity(1),flor_var_struct.flor_diffmax_length(1),flor_var_struct.flor_filtersize(1));
+    if mem.flor_edge_crop(location_counter) == flor_var_struct.flor_edge_crop(1) && mem.flor_min_convexarea(location_counter) == flor_var_struct.flor_min_convexarea(1) ... 
+            && mem.flor_min_minoraxislength(location_counter) == flor_var_struct.flor_min_minoraxislength(1) && mem.flor_min_area(location_counter) == flor_var_struct.flor_min_area(1) ...
+            && mem.flor_min_solidity(location_counter) == flor_var_struct.flor_min_solidity(1) && mem.flor_diffmax_length(location_counter) == flor_var_struct.flor_diffmax_length(1) && mem.flor_filtersize(location_counter) == flor_var_struct.flor_filtersize(1);
         [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = deal(mem.flor_boolean(location_counter),mem.flor_centroid(location_counter),mem.flor_minoraxis(location_counter),mem.flor_majoraxis(location_counter));
     else
         [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = blob_diff_circler(filepath_flor);
         [mem.flor_boolean(location_counter),mem.flor_centroid(location_counter,:),mem.flor_minoraxis(location_counter),mem.flor_majoraxis(location_counter)] = deal (flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis);
     end
-    [edge_crop,min_convexarea,min_minoraxislength,min_area,min_solidity,diffmax_length] = ...
-            deal(pol_edge_crop,pol_min_convexarea,pol_min_minoraxislength,pol_min_area,pol_min_solidity,pol_diffmax_length);
-    if mem.pol_edge_crop(location_counter) == pol_edge_crop && mem.pol_min_convexarea(location_counter) == pol_min_convexarea ... 
-            && mem.pol_min_minoraxislength(location_counter) == pol_min_minoraxislength && mem.pol_min_area(location_counter) == pol_min_area ...
-            && mem.pol_min_solidity(location_counter) == pol_min_solidity && mem.pol_diffmax_length(location_counter) == pol_diffmax_length
+    [edge_crop,min_convexarea,min_minoraxislength,min_area,min_solidity,diffmax_length,filtersize] = ...
+            deal(pol_var_struct.pol_edge_crop(1),pol_var_struct.pol_min_convexarea(1),pol_var_struct.pol_min_minoraxislength(1),pol_var_struct.pol_min_area(1),pol_var_struct.pol_min_solidity(1),pol_var_struct.pol_diffmax_length(1),pol_var_struct.pol_filtersize(1));
+    if mem.pol_edge_crop(location_counter) == pol_var_struct.pol_edge_crop(1) && mem.pol_min_convexarea(location_counter) == pol_var_struct.pol_min_convexarea(1) ... 
+            && mem.pol_min_minoraxislength(location_counter) == pol_var_struct.pol_min_minoraxislength(1) && mem.pol_min_area(location_counter) == pol_var_struct.pol_min_area(1) ...
+            && mem.pol_min_solidity(location_counter) == pol_var_struct.pol_min_solidity(1) && mem.pol_diffmax_length(location_counter) == pol_var_struct.pol_diffmax_length(1) && mem.pol_filtersize(location_counter) == pol_var_struct.pol_filtersize(1);
         [pol_boolean,pol_centroid,pol_minoraxis,pol_majoraxis] = deal(mem.pol_boolean(location_counter),mem.pol_centroid(location_counter),mem.pol_minoraxis(location_counter),mem.pol_majoraxis);
 
     else
@@ -79,17 +77,17 @@ if in_bulk ==1
     end
         %%MEMORY
         [mem.flor_edge_crop(location_counter),mem.flor_min_convexarea(location_counter),mem.flor_min_minoraxislength(location_counter),mem.flor_min_area(location_counter),... 
-        mem.flor_min_solidity(location_counter),mem.flor_diffmax_length(location_counter),mem.pol_edge_crop(location_counter),mem.pol_min_convexarea(location_counter), ...
-        mem.pol_min_minoraxislength(location_counter),mem.pol_min_area(location_counter),mem.pol_min_solidity(location_counter),mem.pol_diffmax_length(location_counter)] = ...
-        deal(flor_edge_crop,flor_min_convexarea,flor_min_minoraxislength,flor_min_area,... 
-        flor_min_solidity,flor_diffmax_length,pol_edge_crop,pol_min_convexarea,...
-        pol_min_minoraxislength,pol_min_area,pol_min_solidity,pol_diffmax_length);
+        mem.flor_min_solidity(location_counter),mem.flor_diffmax_length(location_counter),mem.flor_filtersize,mem.pol_edge_crop(location_counter),mem.pol_min_convexarea(location_counter), ...
+        mem.pol_min_minoraxislength(location_counter),mem.pol_min_area(location_counter),mem.pol_min_solidity(location_counter),mem.pol_diffmax_length(location_counter),mem.pol__filtersize(location_counter)] = ...
+        deal(flor_var_struct.flor_edge_crop(1),flor_var_struct.flor_min_convexarea(1),flor_var_struct.flor_min_minoraxislength(1),flor_var_struct.flor_min_area(1),... 
+        flor_var_struct.flor_min_solidity(1),flor_var_struct.flor_diffmax_length(1),flor_var_struct.flor_filtersize(1),pol_var_struct.pol_edge_crop(1),pol_var_struct.pol_min_convexarea(1),...
+        pol_var_struct.pol_min_minoraxislength(1),pol_var_struct.pol_min_area(1),pol_var_struct.pol_min_solidity(1),pol_var_struct.pol_diffmax_length(1),pol_var_struct.pol_filtersize(1));
 end
 if flor_boolean == 1  && pol_boolean == 1;
     %in the blob_diff_circler we subtract 11 pixels from each side so we
     %have to add them back to the coords now
-    flor_centroid = flor_centroid + [flor_diffmax_length+flor_edge_crop,flor_diffmax_length+flor_edge_crop];
-    pol_centroid = pol_centroid + [pol_diffmax_length+pol_edge_crop,pol_diffmax_length+pol_edge_crop];
+    flor_centroid = flor_centroid; %+ [flor_var_struct.flor_diffmax_length(1)+flor_var_struct.flor_edge_crop(1),flor_var_struct.flor_diffmax_length(1)+flor_var_struct.flor_edge_crop(1)];
+    pol_centroid = pol_centroid;% + [pol_var_struct.pol_diffmax_length(1)+pol_var_struct.pol_edge_crop(1),pol_var_struct.pol_diffmax_length(1)+pol_var_struct.pol_edge_crop(1)];
     overlap_image = zeros(1024,1280);
     overlap_image_1 = im2bw(rgb2gray(insertShape(overlap_image,'FilledCircle',[flor_centroid,(flor_minoraxis/2)],'Color',[1,1,1],'Opacity', 1)),.5);
     overlap_image_2 = im2bw(rgb2gray(insertShape(overlap_image,'FilledCircle',[flor_centroid,(flor_majoraxis/2)],'Color',[1,1,1],'Opacity', 1)),.5);
@@ -100,7 +98,7 @@ if flor_boolean == 1  && pol_boolean == 1;
     %it is within the minor circle and 1 means it is within the major
     %circle. We can find overlap from this
     bw_overlap_image = (overlap_image_1 + overlap_image_2 + overlap_image_3*10 + overlap_image_4*10);
-    if show ==1;
+    if show ==1 || maxfound == 1;
         show_bw_overlap_image = (overlap_image_1 + overlap_image_2 + overlap_image_3 + overlap_image_4);
     end
     comp00 = sum(bw_overlap_image(:) == 00);
@@ -133,6 +131,12 @@ end
 if show == 1 && pol_boolean == 1 && flor_boolean == 1
     imshow (show_bw_overlap_image*.25);
     imwrite(bw_overlap_image,strrep(flor_comp_path,' mono',' bw_overlap_image'));
+elseif maxfound == 1 && pol_boolean == 1 && flor_boolean == 1
+    imwrite(imfuse(imread(flor_comp_path),imread(pol_comp_path)),strrep(flor_comp_path,'mono','_fuse_overlap_image'));
+    imwrite((show_bw_overlap_image*.25),strrep(flor_comp_path,'mono','_bw_overlap_image'));
+    imwrite((imfuse(imread(flor_comp_path),imread(pol_comp_path))+(repmat((uint8(show_bw_overlap_image*25)),[1,1,3]))),strrep(flor_comp_path,'mono','_overlap_image'))
+elseif maxfound == 1;
+    imwrite(imfuse(imread(flor_comp_path),imread(pol_comp_path)),strrep(flor_comp_path,'mono','_fuse_overlap_image'));
 end
 
 %The Results will be all numbers for ease of importing pulling through the
@@ -144,7 +148,7 @@ results = [pol_boolean flor_boolean overall_overlap_precent good_precent ...
 
 
 
-if in_bulk == 0
+if in_bulk == 0 
     home = cd(comp_path);
     csvwrite(['S_S_',(strrep(pol_file,'_4545.bmp','.csv'))],results);
     cd(home);

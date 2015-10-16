@@ -14,18 +14,22 @@ if defaultvar == 1
     min_minoraxislength = 20;%20 minimum length of the short size
     min_area = 10; %10 minimum number of pixels which must show up in the polygon
     min_solidity = .001; %.001 minimmum amount of pixels per the area of the plygon (pixel density)
-    diffmax_length = 100; % 100 how large the largest blob can be (photo size minus this #)
+    diffmax_length = 100; % 100 how large the largest blob can be (photo size minus this #)\
+    filtersize = 18; %How finely the photo should be filtered
 else
     global edge_crop min_convexarea min_minoraxislength min_area min_solidity ...
-        diffmax_length;
+        diffmax_length filtersize;
 end
     
 show = 0;
 
 im_prefilter = imread(impath);
-
-im=wiener2((rgb2gray(im_prefilter)),[18,18]);
-
+filtersize = fix(filtersize);
+try
+    im=wiener2((rgb2gray(im_prefilter)),[filtersize,filtersize]);
+catch
+    im=wiener2((im_prefilter),[filtersize,filtersize]);
+end
 im_size=size(im);
 %im_area = im_size(1)*im_size(2);
 
@@ -51,8 +55,7 @@ imlen=length(improp);
 i=0;
 
 while i<imlen;
-    i = i+1;
-    %this should be the size of a 3 micron diameter circle 
+    i = i+1; 
     if improp(i).ConvexArea >= ((im_size(2)-diffmax_length-edge_crop)*(im_size(1)-diffmax_length-edge_crop)) ...
             || improp(i).ConvexArea<=min_convexarea ||improp(i).MinorAxisLength<=min_minoraxislength ...
             || improp(i).Area<=min_area || improp(i).Solidity<=min_solidity ;

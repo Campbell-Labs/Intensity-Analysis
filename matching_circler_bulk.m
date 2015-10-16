@@ -8,7 +8,7 @@ function [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,sp
     
 % datafile = 'C:\Glenda\Glenda LE';
 % resultsfile = 'C:\Glenda\Glenda LE';
-global maxfound location_counter mem;
+global maxfound location_counter mem name;
 
 addpath('basic_functions','specific_functions');
 
@@ -19,6 +19,7 @@ is_fun = 1;
 if is_fun ==0
     datafile = input('Where is the Raw Data folder stored?');
     resultsfile = datafile;
+    maxfound = 1;
 end
 
 if is_fun == 0 || maxfound == 1;
@@ -39,8 +40,8 @@ n=size_struct(1);
 empty = zeros(n,1);
 empty2 = zeros(n,2);
 mem = struct('flor_edge_crop',empty,'flor_min_convexarea',empty,'flor_min_minoraxislength',empty,'flor_min_area',empty,... 
-            'flor_min_solidity',empty,'flor_diffmax_length',empty,'pol_edge_crop',empty,'pol_min_convexarea',empty, ...
-            'pol_min_minoraxislength',empty,'pol_min_area',empty,'pol_min_solidity',empty,'pol_diffmax_length',empty,...
+            'flor_min_solidity',empty,'flor_diffmax_length',empty,'flor_filtersize',empty,'pol_edge_crop',empty,'pol_min_convexarea',empty, ...
+            'pol_min_minoraxislength',empty,'pol_min_area',empty,'pol_min_solidity',empty,'pol_diffmax_length',empty,'pol_filtersize',empty,...
             'flor_boolean',empty,'flor_centroid',empty2,'flor_minoraxis',empty,'flor_majoraxis',empty,...
            'pol_boolean',empty,'pol_centroid',empty2,'pol_minoraxis',empty,'pol_majoraxis',empty);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,10 +60,15 @@ falseneg_count = 0;
 falsepos_count = 0;
 while location_counter<n;
     location_counter=location_counter+1;
+    name = folderlist(location_counter).name;
     location_path = [raw_file,'\',folderlist(location_counter).name];
     if is_fun == 0 || maxfound == 1;
-        makefile_path({'circle comparisons'},location_path);
-        results_path = [location_path,'/','circle comparisons','/'];
+        try home = cd([[resultsfile,'\Intensity based circle matching analysis'],'/','circle comparisons','/']);
+            cd(home);
+        catch
+            makefile_path({'circle comparisons'},[resultsfile,'\Intensity based circle matching analysis']);
+        end
+        results_path = [[resultsfile,'\Intensity based circle matching analysis'],'/','circle comparisons','/'];
     else
         results_path = location_path;
     end
@@ -98,7 +104,7 @@ while location_counter<n;
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
-        falseneg_count = falseneg_count+1;
+        falsepos_count = falsepos_count+1;
     end
     if is_fun ==0
         disp([folderlist(location_counter).name,' has been analysed']);
@@ -129,6 +135,7 @@ if is_fun == 0 || maxfound == 1;
     xlswrite([resultsfile,'\Intensity based circle matching analysis\','truenegcir_results.xlsx'],trueneg_results);
     xlswrite([resultsfile,'\Intensity based circle matching analysis\','falsenegcir_results.xlsx'],falseneg_results);
     xlswrite([resultsfile,'\Intensity based circle matching analysis\','falseposcir_results.xlsx'],falsepos_results);
+    disp(['A result has been printed to ',resultsfile]);
 end
 if is_fun ==0
     disp('DONE');
