@@ -16,19 +16,42 @@ if defaultvar == 1
     min_solidity = .001; %.001 minimmum amount of pixels per the area of the plygon (pixel density)
     diffmax_length = 100; % 100 how large the largest blob can be (photo size minus this #)\
     filtersize = 18; %How finely the photo should be filtered
+    precent = 5; %precent at which the value will be altered
+    filter = 1;%should the images be filtered?
+    intalt = 1;%should intensity be altered?
 else
     global edge_crop min_convexarea min_minoraxislength min_area min_solidity ...
-        diffmax_length filtersize;
+        diffmax_length filtersize precent filter intalt;
 end
-    
+
 show = 0;
 
-im_prefilter = imread(impath);
+
+im = imread(impath);
 filtersize = fix(filtersize);
-try
-    im=wiener2((rgb2gray(im_prefilter)),[filtersize,filtersize]);
-catch
-    im=wiener2((im_prefilter),[filtersize,filtersize]);
+if filter == 1;
+    try
+        im=wiener2((rgb2gray(im)),[filtersize,filtersize]);
+    catch
+        im=wiener2((im),[filtersize,filtersize]);
+    end
+end
+if intalt == 1;
+    try
+        im=(rgb2gray(im));
+    catch%this means it is grayscale already so we do nothing
+    end
+    immean = mean2(im);
+    for i = 1:numel(im)
+        if im(i) > (immean*(1+(precent/100)))
+            im(i) = 1.25*im(i);
+            if im(i)>255
+                im(i) = 255;
+            end
+        elseif im(i)<(immean*(1-(precent/100)))
+            im(i) = im(i)/1.25;
+        end
+    end
 end
 im_size=size(im);
 %im_area = im_size(1)*im_size(2);
