@@ -15,7 +15,7 @@ home = cd(datafile);
 [FileName,PathName] = uigetfile('*.xlsx','Select the Excel high_low file, or cancel for defaults',datafile);
 cd(home);
 
-global flor_var_struct pol_var_struct maxfound printfile filter intalt;
+global flor_var_struct pol_var_struct maxfound printfile filter intalt; %initailizing global variables to pass through the functions
 resultsfile = [datafile,'\Sensitivity_Specificty'];
 
 %%%%%%%%%%%%%%%%OPTIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,7 +31,8 @@ courseness = 20; %how large should the difference in steps per loop be?
     printfile = 1;%should output files be copied and drawn on?
     show = 1;%should the function be outputting stuff to the command window?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%these are the settings used if nothing is specified%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if isnumeric(FileName) == 1 && isnumeric(PathName)== 1
 %initilize variables
 %%FLOR
@@ -102,7 +103,7 @@ pol_high_var_struct=struct(...
 pol_var_struct = [pol_high_var_struct,pol_start_var_struct,pol_low_var_struct];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else
-    
+    %this just reads in the settings files
     [high_low,hdr] = xlsread([PathName,FileName]);
     cd(resultsfile);
     settingsused = [hdr;num2cell(high_low)];
@@ -115,7 +116,7 @@ else
         name = hdr{iteration};
         if strcmp(name(1:4),'flor')
             count23 = 0;
-            while count23 <3
+            while count23 <3 % my code loves me :D
                 count23 = count23 + 1;
                 eval(['flor_var_struct(',num2str(count23),').',genvarname(name),'= high_low(',num2str(count23),',',num2str(iteration),');'])
             end
@@ -129,7 +130,7 @@ else
     end
     cd(home);
 end
-
+%initalizing matrices of variables
 start_row = [round(flor_var_struct(2).flor_edge_crop),round(flor_var_struct(2).flor_min_convexarea),round(flor_var_struct(2).flor_min_minoraxislength), ...
     round(flor_var_struct(2).flor_min_area),flor_var_struct(2).flor_min_solidity,round(flor_var_struct(2).flor_diffmax_length),round(flor_var_struct(2).flor_filtersize),round(flor_var_struct(2).flor_precent),...
     round(pol_var_struct(2).pol_edge_crop),round(pol_var_struct(2).pol_min_convexarea),round(pol_var_struct(2).pol_min_minoraxislength), ...
@@ -149,13 +150,13 @@ results = {'flor_edge_crop','flor_min_convexarea','flor_min_minoraxislength','fl
     'pol_edge_crop','pol_min_convexarea','pol_min_minoraxislength','pol_min_area','pol_min_solidity','pol_diffmax_length','pol_filtersize','pol_intensityprec',...
     'max_num','truepos_count','falsepos_count','falseneg_count','trueneg_count','sens_prec','spec_prec','npp_prec','ppp_prec'};
 
-
+%creating the waitbar
 h=waitbar(0,'Initilizing Variables, Press Cancel to cleanly close the program (may take several minutes)','CreateCancelBtn','setappdata(gcbf,''canceling'',1)','Resize','on');
 setappdata(h,'canceling',0)
 
 maxfound = 1;
 total_loopcount = 0;
-
+%esitmating runtime and giving inital estimates
 steps_per = start_steps_per;
 [numlist,fin] = deal(0);
 while steps_per <= max_steps_per %to find out how many loops will run
@@ -173,14 +174,16 @@ while steps_per <= max_steps_per %to find out how many loops will run
 end
 totloop = sum(numlist);
 steps_per = start_steps_per;
-
+%this now runs the analysis program for the first time (calling
+%matching_circler_bulk is the actual program, the rest is simply variable
+%and file management)
 [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,spec_prec,npp_prec,ppp_prec] = matching_circler_bulk(datafile,resultsfile);
-max_max_num = sens_prec + spec_prec + (npp_prec*0.5) + (ppp_prec*0.5);
+max_max_num = sens_prec + spec_prec + (npp_prec*0.5) + (ppp_prec*0.5); %this is how we define a good vs a bad run, by comparing this one number
 
-[bestsens,bestspec] = deal(sens_prec,spec_prec);
+[bestsens,bestspec] = deal(sens_prec,spec_prec);%setting the inital run as the best, so now we can assume that every run is the same (hence this is initalization)
 
 disp('Initialized');
-try
+try %the whole program sits inside of a try block as it can take days to run, so if it crashes it will still print the results up until that point
     [finished,jadd] = deal(0);
     while finished == 0 || steps_per <= max_steps_per
     maxfound = 0;
@@ -200,7 +203,9 @@ try
     high_low_matrix(:,(steps_per+2))= high_row;
 
     count = 0;
-
+%just creating a spread of variables across the range, I really dont like
+%how I did this(equal distribution of points when it should be weighted to 
+%be more spread near the initalization variable), but I couldnt think of a simple way to do it better...
     while count < size(high_low_matrix,1);
         count = count +1;
         ent_count = 1;
@@ -232,7 +237,8 @@ try
         = deal(0);
     %%%HURRAY LETS MAKE AN ARRAY!!!!
     %%%There whould be 12 columns (+1 empty that the sens/spec will input into)
-    %%%and steps_per(+1) rows and it should be 12 layers deep.
+    %%%and steps_per(+1) rows and it should be 12 layers deep. (12 is not
+    %%%hardcoded to allow the introduction of more variables)
     if size(start_row,2) == size(low_row,2)
         start_row = [start_row,0];
     end
@@ -268,7 +274,7 @@ try
                 if var_array(k,i,newj) < 1 %this checks if the number is less than 1(should only apply to solidity)
                     a(k) = (var_array(k,i,newj));
                 else
-                    a(k) = (round(var_array(k,i,newj)));%and it should roumd the number (for speed) if it is more than one
+                    a(k) = (round(var_array(k,i,newj)));%and it should roumd the number (for speed) if it is more than one. (this will speed up runtime as later on the program will throw out repeated runs, so this insures that there will be repeat in variables which it is useless to have decimals)
                 end
             end
             a = num2cell(a);
@@ -277,7 +283,7 @@ try
             pol_var_struct(2).pol_edge_crop,pol_var_struct(2).pol_min_convexarea,pol_var_struct(2).pol_min_minoraxislength, ...
             pol_var_struct(2).pol_min_area,pol_var_struct(2).pol_min_solidity,pol_var_struct(2).pol_diffmax_length,pol_var_struct(2).pol_filtersize,pol_var_struct(2).pol_precent] = a{:};
             [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,spec_prec,npp_prec,ppp_prec] = ...
-                                       matching_circler_bulk(datafile,resultsfile);
+                                       matching_circler_bulk(datafile,resultsfile); %this is where the real analysis runs
             %Number which we are attempting to maximize:
             %I am adding them all up but giving more weight to the sens/spec
             %for obvious reasons
@@ -302,6 +308,8 @@ try
             if loop_pass == 1
                 loop_pass = 0;
                 maxfound = 0;
+                %this elseif loop is how I dynamically change variables if
+                %they are good
             elseif max_num> max_max_num ||(finished == 0 && max_num == max_max_num) 
                 if show == 1;
                     disp(results{1,newj});
@@ -336,7 +344,9 @@ try
                     end
                 end
                 i=i-1;
-            elseif max_num < (max_max_num-(.1*(300-max_max_num)))
+                %this elseif loop is where I dynamically change variables
+                %if they are bad
+            elseif max_num < (max_max_num-(.1*(300-max_max_num))) 
                 if high_low_matrix(newj,i)>start_row(newj) && high_change == 0
                     high_change = 1;
                     high_row(newj) = high_low_matrix(newj,i);
@@ -358,7 +368,8 @@ try
             secdiffarray = [secdiffarray;secdiff];
             avg_time = mean(secdiffarray);
 
-            %messages to be displayed every 20 loops
+            %messages to be displayed every 20 loops so we dont spam the
+            %console
             waitbar(loopcount/(var_depth*var_width),h,['Best Sensitivity is ',num2str(bestsens),'% and Specificity is ',num2str(bestspec),'%',char(10),'Current Sensitivity is ',num2str(sens_prec),'% and Specificity is ',num2str(spec_prec),'% - using ',results{1,newj},char(10),'Cancel cleanly closes program (may take several minutes) -- ',num2str((fix((total_loopcount/totloop)*10000))/100),'% complete OVERALL.']);
             if getappdata(h,'canceling')
                 error('Cancel has been hit');
@@ -390,7 +401,7 @@ try
                 end
         end
     end
-catch ME
+catch ME %catching errors
     
     %result printing section. IF THE FUNCTION DIES RUN THIS SECTION
     delete(h);
@@ -405,5 +416,5 @@ catch ME
     
     disp('DONE!!');
     disp(fix(clock));
-    rethrow(ME);
+    rethrow(ME); %throwing the error at the end so we can actually read what happened in the end
 end

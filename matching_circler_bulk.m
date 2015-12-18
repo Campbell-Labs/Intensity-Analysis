@@ -2,13 +2,17 @@
 %%that file and find all of the Locations/Spots and run the function in
 %%intensity values ranging from 1 to 20 and print all of the results to a
 %%excel file
+    %Note that this is fairly simple file management, no real analysis
+    %happens here either and hence this is a very quick function (except it
+    %runs the deeper matching_flor_pol_circle which is slow)
+    %THIS WORKS ON AS MANY LOCATIONS AS YOU WANT
 function [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,spec_prec,npp_prec,ppp_prec] = ...
     matching_circler_bulk(datafile,resultsfile)
     %this function will run the circular matching on a whole Raw Data file
     
 % datafile = 'C:\Glenda\Glenda LE';
 % resultsfile = 'C:\Glenda\Glenda LE';
-global maxfound location_counter mem name printfile;
+global maxfound location_counter mem name printfile; %bringing in globals
 
 addpath('basic_functions','specific_functions');
 
@@ -29,7 +33,7 @@ end
 raw_file = [datafile,'\Raw Data'];
 
 home=cd(raw_file);
-
+%this is just managing the file structure
 folderlist_location=dir(['./','*ocation*']);
 folderlist_spot=dir(['./','*pot*']);
 folderlist = [folderlist_location,folderlist_spot];
@@ -59,6 +63,8 @@ truepos_count = 0;
 trueneg_count = 0;
 falseneg_count = 0;
 falsepos_count = 0;
+%this loops through every single location and gives us overlap and a yes or
+%no to seeing the deposit (given by matching_flor_pol_circle)
 while location_counter<n;
     location_counter=location_counter+1;
     name = folderlist(location_counter).name;
@@ -74,10 +80,10 @@ while location_counter<n;
         results_path = location_path;
     end
     [pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
-    great_precent,AWESOME_precent,area_covered ] = matching_flor_pol_circle( location_path,results_path );
+    great_precent,AWESOME_precent,area_covered ] = matching_flor_pol_circle( location_path,results_path ); %this is where the analysis actually happens in this function (even deeper)
     full_results = [full_results;{folderlist(location_counter).name,pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
     great_precent,AWESOME_precent,area_covered}];
-    
+    %prints into different files if they are truepos,trueneg....
     if flor_boolean == 1 && pol_boolean==1
         if is_fun == 0 || (maxfound == 1 && printfile == 1);
         truepos_results = [truepos_results;{folderlist(location_counter).name,pol_boolean,...

@@ -1,7 +1,7 @@
 function [ found,avg_centroid,avg_minoraxis,avg_majoraxis ] = blob_diff_circler( impath )
 %blob differentator whould take in the image differentate it and encircle those
-%blobs
-%   Detailed explanation goes here
+%blobs, and use the variables passed in through the 3 other higher
+%functions to run on this deposit. THIS WORKS ON A SINGLE PICTURE
 
 %These are the parameters which the function regards or disregards the
 %points and the commented number is the values which work for Glenda pol
@@ -29,6 +29,9 @@ show = 0;
 
 im = imread(impath);
 filtersize = fix(filtersize);
+
+%if we have been set to filter out noise we will run a filter on the
+%picture before running the function
 if filter == 1;
     try
         im=wiener2((rgb2gray(im)),[filtersize,filtersize]);
@@ -36,6 +39,8 @@ if filter == 1;
         im=wiener2((im),[filtersize,filtersize]);
     end
 end
+%this is an option set to do intensity filtering, I'm not convinced we
+%should do this, but it did seem to help... so yea I usually left it on
 if intalt == 1;
     try
         im=(rgb2gray(im));
@@ -71,6 +76,8 @@ im_diff = imcrop(((a+b)),[edge_crop,edge_crop,(im_size(2)-(2*edge_crop)),(im_siz
 I=double(im_diff);
 %Inorm = (double(I) ./(double(max(max(I)))))*255;
 %imshow (I);
+%%we get all the properties and then compare them to the variables we are
+%%trying
 improp=regionprops(I,'Area','BoundingBox','Centroid','MinorAxisLength',...
     'MajorAxisLength','image','Convexarea','Conveximage','Solidity');
 

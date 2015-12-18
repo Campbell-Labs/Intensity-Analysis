@@ -3,7 +3,7 @@ function [pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
 %This function should check if the two images defined in the path fall
 %within eachothers circles as defined by the average minor and major axis,
 %as defined by the blob_diff_circler function
-%   Detailed explanation goes here
+%   %THIS WORKS ON A SINGLE LOCATION
 debugging = 0;
 addpath('basic_functions','specific_functions');
 
@@ -98,7 +98,7 @@ if in_bulk ==1
             && mem.flor_filtersize(location_counter) == flor_var_struct(2).flor_filtersize && mem.flor_precent(location_counter) == flor_var_struct(2).flor_precent;
         [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = deal(mem.flor_boolean(location_counter),mem.flor_centroid(location_counter),mem.flor_minoraxis(location_counter),mem.flor_majoraxis(location_counter));
     else
-        [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = blob_diff_circler(filepath_flor);
+        [flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis] = blob_diff_circler(filepath_flor);%this is the actual analysis for florencent photos
         [mem.flor_boolean(location_counter),mem.flor_centroid(location_counter,:),mem.flor_minoraxis(location_counter),mem.flor_majoraxis(location_counter)] = deal (flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis);
     end
     [edge_crop,min_convexarea,min_minoraxislength,min_area,min_solidity,diffmax_length,filtersize,precent] = ...
@@ -110,7 +110,7 @@ if in_bulk ==1
         [pol_boolean,pol_centroid,pol_minoraxis,pol_majoraxis] = deal(mem.pol_boolean(location_counter),mem.pol_centroid(location_counter),mem.pol_minoraxis(location_counter),mem.pol_majoraxis);
 
     else
-        [pol_boolean,pol_centroid,pol_minoraxis,pol_majoraxis] = blob_diff_circler(filepath_pol);
+        [pol_boolean,pol_centroid,pol_minoraxis,pol_majoraxis] = blob_diff_circler(filepath_pol);%this is the actual analysis for polarization photos
         [mem.pol_boolean(location_counter),mem.pol_centroid(location_counter,:),mem.pol_minoraxis(location_counter),mem.pol_majoraxis(location_counter)] = deal (flor_boolean,flor_centroid,flor_minoraxis,flor_majoraxis);
     end
         %%MEMORY
