@@ -21,7 +21,7 @@ end
 %give us the path to this location. This is based off of the naming
 %conventions which I know are commonly used for the Raw Data dump
 try
-    [filepath_flor,flor_file] = find_file(location_path,'F','mono.bmp');
+    [filepath_flor,flor_file] = find_file(location_path,'Fluorescent','[BW].bmp');
 catch 
     %hopfully it's just looking at the wrong file name
     try
@@ -31,7 +31,7 @@ catch
                 error('find_file:no_such_path','Error \n \nThis path does not exist');
             end%this is simply the find_file function but edited for our needs
             try
-                cell = struct2cell(dir(['./','\*','mono.bmp']));
+                cell = struct2cell(dir(['./','\*','[BW].bmp']));
                 flor_file = char(cell(1));
             catch
                 cd(home1);
@@ -44,11 +44,11 @@ catch
         if debugging ==1
             disp(location_path);
         end
-        [filepath_flor,flor_file] = find_file(location_path,'F\bmp','mono.bmp');
+        [filepath_flor,flor_file] = find_file(location_path,'Fluorescent','[BW].bmp');
     end
 end   %finding the filepath for flor
 try
-    [filepath_pol,pol_file] = find_file(location_path,'MM','4545.bmp');
+    [filepath_pol,pol_file] = find_file(location_path,'MM','[MM][45][45].bmp');
 catch 
     %hopfully it's just looking at the wrong file name
     try
@@ -58,7 +58,7 @@ catch
                 error('find_file:no_such_path','Error \n \nThis path does not exist');
             end%this is simply the find_file function but edited for our needs
             try
-                cell = struct2cell(dir(['./','\*','4545.bmp']));
+                cell = struct2cell(dir(['./','\*','[MM][45][45].bmp']));
                 pol_file = char(cell(1));
             catch
                 cd(home2);
@@ -71,7 +71,7 @@ catch
         if debugging ==1
             disp(location_path);
         end
-        [filepath_pol,pol_file] = find_file(location_path,'MM\bmp','4545.bmp');
+        [filepath_pol,pol_file] = find_file(location_path,'MM\bmp','[MM][45][45].bmp');
     end
 end   %finding the filepath for pol 
 
