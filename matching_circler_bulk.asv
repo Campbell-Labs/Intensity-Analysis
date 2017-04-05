@@ -12,7 +12,7 @@ function [truepos_count,falsepos_count,falseneg_count,trueneg_count,sens_prec,sp
     
 % datafile = 'C:\Glenda\Glenda LE';
 % resultsfile = 'C:\Glenda\Glenda LE';
-global maxfound location_counter mem name printfile sub_nums; %bringing in globals
+global maxfound location_counter mem name printfile; %bringing in globals
 
 addpath('basic_functions','specific_functions');
 
@@ -30,6 +30,7 @@ end
 if is_fun == 0 || (maxfound == 1 && printfile == 1);
     makefile_path({'Intensity based circle matching analysis'},resultsfile);
 end
+sub_nums = input('What subject numbers would you like to analyze? \n Please provide list like [# # #], if empty it will complete all in trial \n');
 if isempty(sub_nums)
      samp_struc = dir([datafile,'\','*S *']);
      samples = samp_struc.name;
@@ -46,26 +47,21 @@ else
     end
 end
 folderlist = {};
-namelist = {};
 for sub_cell = samples;
     subject = char(sub_cell);
     sub_file = [datafile,'\',subject];
     exp_struc = dir([sub_file,'\','E *']);
-    for exper_cell = extractfield(exp_struc,'name');
-        exper = char(exper_cell);
-        exp_file = [sub_file,'\',exper];
-        quarter_struc = dir([exp_file,'\','Q *']);
-        for quart_cell = extractfield(quarter_struc,'name');
-            quart = char(quart_cell);
+    for exp = extractfield(exp_struc,name);
+        exp_file = [sub_file,'\',exp];
+        quarter_struc = dir([sub_file,'\','Q *']);
+        for quart = extractfield(quarter_struc,name);
             quart_file = [exp_file,'\',quart];
             loc_struc = dir([quart_file,'\','L *']);
-            for loc_cell = extractfield(loc_struc,'name');
-                loc = char(loc_cell);
+            for loc = extractfield(loc_struc,name);
                 loc_file = [quart_file,'\',loc];
                 capture = dir([loc_file,'\','CS 001*']);
-                capture_file = [loc_file,'\',capture.name];
+                capture_file = [loc_file,'\',capture];
                 folderlist = [folderlist, {capture_file}];
-                namelist = [namelist, {[subject,' ',exper,' ', quart, ' ',loc]}];
             end
         end
     end
@@ -103,8 +99,8 @@ falsepos_count = 0;
 %no to seeing the deposit (given by matching_flor_pol_circle)
 while location_counter<n;
     location_counter=location_counter+1;
-    name = char(namelist(location_counter));
-    location_path = char(folderlist(location_counter));
+    name = folderlist(location_counter).name;
+    location_path = folderlist(location_counter);
     if is_fun == 0 || (maxfound == 1 && printfile == 1);
         try home = cd([[resultsfile,'\Intensity based circle matching analysis'],'/','circle comparisons','/']);
             cd(home);
@@ -117,40 +113,40 @@ while location_counter<n;
     end
     [pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
     great_precent,AWESOME_precent,area_covered ] = matching_flor_pol_circle( location_path,results_path ); %this is where the analysis actually happens in this function (even deeper)
-    full_results = [full_results;{namelist(location_counter),pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
+    full_results = [full_results;{folderlist(location_counter).name,pol_boolean,flor_boolean,overall_overlap_precent,good_precent, ...
     great_precent,AWESOME_precent,area_covered}];
     %prints into different files if they are truepos,trueneg....
     if flor_boolean == 1 && pol_boolean==1
         if is_fun == 0 || (maxfound == 1 && printfile == 1);
-        truepos_results = [truepos_results;{namelist(location_counter),pol_boolean,...
+        truepos_results = [truepos_results;{folderlist(location_counter).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         truepos_count = truepos_count+1;
     elseif flor_boolean == 0 && pol_boolean==0
         if is_fun == 0 || (maxfound == 1 && printfile == 1);
-        trueneg_results = [trueneg_results;{namelist(location_counter),pol_boolean,...
+        trueneg_results = [trueneg_results;{folderlist(location_counter).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         trueneg_count = trueneg_count+1;
     elseif flor_boolean == 1 && pol_boolean==0
         if is_fun == 0 || (maxfound == 1 && printfile == 1);
-        falseneg_results = [falseneg_results;{namelist(location_counter),pol_boolean,...
+        falseneg_results = [falseneg_results;{folderlist(location_counter).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         falseneg_count = falseneg_count+1;
     elseif flor_boolean == 0 && pol_boolean==1
         if is_fun == 0 || (maxfound == 1 && printfile == 1);
-        falsepos_results = [falsepos_results;{namelist(location_counter),pol_boolean,...
+        falsepos_results = [falsepos_results;{folderlist(location_counter).name,pol_boolean,...
             flor_boolean,overall_overlap_precent,good_precent, ...
             great_precent,AWESOME_precent,area_covered}];
         end
         falsepos_count = falsepos_count+1;
     end
     if is_fun ==0
-        disp([namelist(location_counter),' has been analysed']);
+        disp([folderlist(location_counter).name,' has been analysed']);
     end
 end
 sens_prec = (truepos_count/(truepos_count + falseneg_count))*100;

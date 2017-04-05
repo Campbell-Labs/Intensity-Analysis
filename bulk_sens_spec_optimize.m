@@ -2,7 +2,7 @@
     %anything runs
 input('Press Enter to start');%this is here as we have a clear all which a user may not want to initiate
 %%IF YOU ARE DEBUGGING REMOVE THE CLEAR ALL
-clear all;
+%clear all;
 
 addpath('basic_functions','specific_functions');
 
@@ -14,9 +14,12 @@ makefile_path({'Sensitivity_Specificty'},datafile);
 home = cd(datafile);
 [FileName,PathName] = uigetfile('*.xlsx','Select the Excel high_low file, or cancel for defaults',datafile);
 cd(home);
+sub_nums = input('What subject numbers would you like to analyze? \n Please provide list like [# # #], if empty it will complete all in trial \n');
 
-global flor_var_struct pol_var_struct maxfound printfile filter intalt; %initailizing global variables to pass through the functions
+
+global flor_var_struct pol_var_struct maxfound printfile filter intalt sub_nums; %initailizing global variables to pass through the functions
 resultsfile = [datafile,'\Sensitivity_Specificty'];
+
 
 %%%%%%%%%%%%%%%%OPTIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
